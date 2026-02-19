@@ -3649,4 +3649,4 @@ cortex completion install           # Install completion
 
 *This guide covers Cortex Code CLI version 1.0.10+. Features may vary in different versions.*
 
-*Last updated: 2024*
+*Last updated: Jan 2026*
