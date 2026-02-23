@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cortex Code Skill: ML Data Quality Validation & Reporting - Step-by-Step Guide</title>
+    <style>
+        :root {
+            --snow-blue: #29B5E8;
+            --snow-blue-light: #5AC8F5;
+            --snow-blue-dark: #1A8FC2;
+            --snow-dark: #1B2A41;
+            --snow-dark-light: #2A3B56;
+            --snow-light: #F4F7FA;
+            --snow-lighter: #FBFCFD;
+            --success: #28a745;
+            --success-light: #4CAF50;
+            --warning: #ffc107;
+            --warning-light: #FFD54F;
+            --danger: #dc3545;
+            --danger-light: #EF5350;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #29B5E8 0%, #1A8FC2 100%);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.12);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+            --shadow-xl: 0 12px 24px rgba(0,0,0,0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-secondary);
+            z-index: 1000;
+        }
+        
+        @media print {
+            body {
+                max-width: 100%;
+                padding: 0;
+                font-size: 11pt;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            .no-print {
+                display: none;
+            }
+            h1, h2 {
+                page-break-after: avoid;
+            }
+            table, pre, blockquote {
+                page-break-inside: avoid;
+            }
+        }
+        
+        h1 {
+            color: var(--snow-dark);
+            background: linear-gradient(135deg, var(--snow-dark) 0%, var(--snow-dark-light) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 3px solid transparent;
+            border-image: var(--gradient-secondary);
+            border-image-slice: 1;
+            padding-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-top: 35px;
+            transition: all 0.3s ease;
+        }
+
+        h1:hover {
+            transform: translateX(5px);
+        }
+
+        h2 {
+            color: var(--snow-blue);
+            border-bottom: 2px solid transparent;
+            border-image: linear-gradient(90deg, var(--snow-blue), transparent);
+            border-image-slice: 1;
+            padding-bottom: 8px;
+            margin-top: 35px;
+            font-size: 1.8em;
+            font-weight: 600;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 80%;
+            background: var(--gradient-secondary);
+            border-radius: 2px;
+        }
+
+        h3 {
+            color: var(--snow-dark);
+            margin-top: 30px;
+            font-size: 1.4em;
+            font-weight: 600;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        h3::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--snow-blue);
+        }
+
+        h4 {
+            color: #4a5568;
+            font-size: 1.1em;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 25px 0;
+            font-size: 0.95em;
+            box-shadow: var(--shadow-md);
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        table:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        th, td {
+            border: none;
+            padding: 14px 16px;
+            text-align: left;
+            position: relative;
+        }
+
+        td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        th {
+            background: var(--gradient-secondary);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        tr:nth-child(even) {
+            background: var(--snow-lighter);
+        }
+
+        tr:hover {
+            background: #e3f2fd;
+            transition: background 0.2s ease;
+        }
+        
+        code {
+            background: linear-gradient(135deg, #f7f9fc 0%, #e8ecf3 100%);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.9em;
+            border: 1px solid rgba(41, 181, 232, 0.2);
+            color: #2a5c99;
+        }
+
+        pre {
+            background: linear-gradient(135deg, #1e2139 0%, #2d3561 100%);
+            color: #e4e8ed;
+            padding: 35px 20px 20px 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.6;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            margin: 25px 0;
+            border: 1px solid rgba(41, 181, 232, 0.1);
+        }
+
+        pre::before {
+            content: 'CODE';
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            background: var(--gradient-secondary);
+            color: white;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 0.7em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            z-index: 1;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            color: inherit;
+            border: none;
+        }
+
+        .sql {
+            background: linear-gradient(135deg, #1e3a5f 0%, #2a5c8a 100%);
+        }
+
+        .sql::before {
+            content: 'SQL';
+        }
+
+        .bash {
+            background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%);
+        }
+
+        .bash::before {
+            content: 'BASH';
+        }
+        
+        blockquote {
+            border-left: 5px solid transparent;
+            border-image: var(--gradient-secondary);
+            border-image-slice: 1;
+            margin: 25px 0;
+            padding: 15px 25px;
+            background: linear-gradient(135deg, var(--snow-light) 0%, white 100%);
+            border-radius: 0 12px 12px 0;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            font-style: italic;
+        }
+
+        blockquote::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            font-size: 3em;
+            color: var(--snow-blue);
+            opacity: 0.3;
+        }
+        
+        .tip {
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+            border-left: 5px solid var(--success);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .tip::before {
+            content: '💡';
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 8px;
+            font-size: 1.2em;
+        }
+
+        .warning {
+            background: linear-gradient(135deg, #fff8e1 0%, #fffbf0 100%);
+            border-left: 5px solid var(--warning);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .warning::before {
+            content: '⚠️';
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 8px;
+            font-size: 1.2em;
+        }
+
+        .danger {
+            background: linear-gradient(135deg, #ffebee 0%, #fff5f5 100%);
+            border-left: 5px solid var(--danger);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .danger::before {
+            content: '🚨';
+            position: absolute;
+            top: -10px;
+            left: 15px;
+            background: white;
+            padding: 0 8px;
+            font-size: 1.2em;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .verdict-ready {
+            color: var(--success);
+            font-weight: bold;
+            padding: 4px 12px;
+            background: rgba(40, 167, 69, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .verdict-attention {
+            color: var(--warning);
+            font-weight: bold;
+            padding: 4px 12px;
+            background: rgba(255, 193, 7, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        .verdict-blocked {
+            color: var(--danger);
+            font-weight: bold;
+            padding: 4px 12px;
+            background: rgba(220, 53, 69, 0.1);
+            border-radius: 20px;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .workflow-diagram {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            border: 2px solid transparent;
+            border-image: var(--gradient-secondary);
+            border-image-slice: 1;
+            padding: 45px 25px 25px 25px;
+            border-radius: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            white-space: pre;
+            overflow-x: auto;
+            font-size: 0.85em;
+            line-height: 1.5;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .workflow-diagram::before {
+            content: 'WORKFLOW';
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            background: var(--gradient-secondary);
+            padding: 3px 15px;
+            color: white;
+            font-size: 0.75em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-radius: 20px;
+            z-index: 1;
+        }
+        
+        .toc {
+            background: linear-gradient(135deg, white 0%, var(--snow-light) 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin: 30px 0;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(41, 181, 232, 0.1);
+            position: relative;
+        }
+
+        .toc h3 {
+            color: var(--snow-dark);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--snow-blue);
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .toc > ul {
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin: 10px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .toc li::before {
+            content: '▶';
+            position: absolute;
+            left: 0;
+            color: var(--snow-blue);
+            font-size: 0.8em;
+            transition: transform 0.3s ease;
+        }
+
+        .toc li:hover::before {
+            transform: translateX(5px);
+        }
+
+        .toc a {
+            color: var(--snow-dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .toc a:hover {
+            color: var(--snow-blue);
+            transform: translateX(5px);
+            font-weight: 500;
+        }
+        
+        .header-banner {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -5%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(41,181,232,0.3) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .header-banner h1 {
+            color: white;
+            border: none;
+            margin: 0;
+            font-size: 2.8em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+            background: none;
+            -webkit-text-fill-color: white;
+        }
+
+        .header-banner p {
+            color: #d4e9f7;
+            margin: 15px 0 0 0;
+            font-size: 1.2em;
+            position: relative;
+            z-index: 1;
+            opacity: 0.95;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .github-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .github-link svg {
+            transition: transform 0.3s ease;
+        }
+
+        .github-link:hover svg {
+            transform: rotate(360deg) scale(1.1);
+        }
+
+        .github-link span {
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: var(--gradient-secondary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 36px;
+            font-weight: bold;
+            margin-right: 15px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .step-number:hover {
+            transform: rotate(360deg) scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        ul, ol {
+            padding-left: 30px;
+            margin: 20px 0;
+        }
+
+        li {
+            margin: 10px 0;
+            line-height: 1.8;
+            position: relative;
+        }
+
+        ul li::marker {
+            color: var(--snow-blue);
+        }
+
+        ol li::marker {
+            color: var(--snow-blue);
+            font-weight: 600;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--snow-dark) 0%, var(--snow-dark-light) 100%);
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            font-size: 0.95em;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .footer p {
+            margin: 8px 0;
+            opacity: 0.95;
+        }
+
+        .footer p:first-child {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        section {
+            background: white;
+            padding: 35px;
+            margin: 30px 0;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        p {
+            margin: 18px 0;
+            line-height: 1.8;
+        }
+
+        strong {
+            color: var(--snow-dark);
+            font-weight: 600;
+        }
+
+        hr {
+            border: none;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--snow-blue), transparent);
+            margin: 35px 0;
+        }
+
+        a {
+            color: var(--snow-blue);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        a:hover {
+            color: var(--snow-blue-dark);
+            border-bottom: 1px solid var(--snow-blue-dark);
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gradient-secondary);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--snow-blue-dark);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-banner">
+    <a href="https://github.com/sarathi-aiml/Cortex-Code-CLI/" target="_blank" class="github-link">
+        <svg height="32" width="32" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+            <path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+        </svg>
+        <span>GitHub</span>
+    </a>
+    <h1>Cortex Code Skill: ML Data Quality Validation & Reporting</h1>
+    <p>Step-by-Step Guide for Creating Your Own Skill</p>
+</div>
+
+<div class="toc no-print">
+    <h3>Table of Contents</h3>
+    <ul>
+        <li><a href="#executive-summary">Executive Summary</a></li>
+        <li><a href="#part1">Part 1: Introduction</a></li>
+        <li><a href="#part2">Part 2: Prerequisites</a></li>
+        <li><a href="#part3">Part 3: Understanding Cortex Code Skills</a></li>
+        <li><a href="#part4">Part 4: Architecture & Design</a></li>
+        <li><a href="#part5">Part 5: Step-by-Step Creation</a></li>
+        <li><a href="#part6">Part 6: Testing Your Skill</a></li>
+        <li><a href="#part7">Part 7: Sharing with Your Organization</a></li>
+        <li><a href="#part8">Part 8: Troubleshooting</a></li>
+        <li><a href="#appendix">Appendices</a></li>
+    </ul>
+</div>
+
+<section id="executive-summary">
+<h1>Executive Summary</h1>
+
+<h2>What This Skill Does</h2>
+
+<p>The <strong>ml-data-quality-validation</strong> skill is a Cortex Code (CoCo) skill that performs comprehensive, model-aware data quality checks on Snowflake tables <strong>before</strong> feature engineering and model training.</p>
+
+<h3>Key Capabilities</h3>
+
+<table>
+    <tr>
+        <th>Capability</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><strong>Interactive Input Collection</strong></td>
+        <td>Asks user for model type, target column, source tables</td>
+    </tr>
+    <tr>
+        <td><strong>Deep Data Profiling</strong></td>
+        <td>Analyzes nulls, distributions, cardinality, outliers</td>
+    </tr>
+    <tr>
+        <td><strong>Model-Specific Checks</strong></td>
+        <td>Tailored validations for classification, regression, tree models</td>
+    </tr>
+    <tr>
+        <td><strong>Automated Reporting</strong></td>
+        <td>Generates markdown report with TLDR verdict</td>
+    </tr>
+    <tr>
+        <td><strong>Actionable Recommendations</strong></td>
+        <td>Provides specific remediation steps</td>
+    </tr>
+</table>
+
+<h3>Workflow Overview</h3>
+
+<div class="workflow-diagram">
+┌─────────────────────────────────────────────────────────────────────────┐
+│              ML Data Quality Validation - End-to-End Flow               │
+└─────────────────────────────────────────────────────────────────────────┘
+
+   STEP 1            STEP 2            STEP 3            STEP 4
+┌──────────┐    ┌──────────────┐   ┌───────────────┐  ┌──────────────┐
+│ COLLECT  │───▶│   SCHEMA &   │──▶│MODEL-SPECIFIC │─▶│   GENERATE   │
+│  INPUTS  │    │  PROFILING   │   │    CHECKS     │  │   REPORT     │
+└──────────┘    └──────────────┘   └───────────────┘  └──────────────┘
+     │                │                   │                  │
+     ▼                ▼                   ▼                  ▼
+ • Model type     • Table exists     • Classification:  • TLDR verdict
+ • Target col     • Row counts         class balance    • Pros/Cons
+ • Source tables  • Column types       leakage risk     • Findings
+ • Time column    • Null rates       • Regression:      • Fixes
+ • Join keys      • Cardinality        outliers, skew
+                  • Distributions    • Tree/Ensemble:
+                                       cardinality
+</div>
+
+<h3>TLDR Verdicts</h3>
+
+<p>The skill produces one of three verdicts:</p>
+
+<table>
+    <tr>
+        <th>Verdict</th>
+        <th>Meaning</th>
+        <th>Action Required</th>
+    </tr>
+    <tr>
+        <td><span class="verdict-ready">✅ READY</span></td>
+        <td>No blocking DQ issues</td>
+        <td>Proceed with feature engineering</td>
+    </tr>
+    <tr>
+        <td><span class="verdict-attention">⚠️ NEEDS ATTENTION</span></td>
+        <td>Non-blocking issues found</td>
+        <td>Address before production</td>
+    </tr>
+    <tr>
+        <td><span class="verdict-blocked">🛑 BLOCKED</span></td>
+        <td>Severe issues detected</td>
+        <td>Must fix before any modeling</td>
+    </tr>
+</table>
+
+<div class="page-break"></div>
+
+<h2>How to Use the Skill</h2>
+
+<h3>Quick Start (After Installation)</h3>
+
+<p><strong>Option 1: Explicit Invocation</strong></p>
+<pre class="bash"><code>$ml-data-quality-validation</code></pre>
+
+<p><strong>Option 2: Natural Language</strong></p>
+<pre class="bash"><code>Check ML data quality for my classification model using table 
+ANALYTICS.ML.CUSTOMER_DATA with target column CHURN_FLAG</code></pre>
+
+<p><strong>Option 3: Full Command</strong></p>
+<pre class="bash"><code>I'm planning a logistic regression churn model.
+Use the ml-data-quality-validation skill to check data quality for
+tables TELCO_DB.RAW.CUSTOMERS and TELCO_DB.RAW.USAGE 
+with target CHURN_FLAG and time column EVENT_DATE.
+Output a TLDR and detailed pros/cons.</code></pre>
+
+<h3>Example Session</h3>
+
+<pre><code>User: $ml-data-quality-validation
+
+CoCo: I'll help you validate data quality for your ML project. 
+      Let me ask a few questions:
+
+      What type of ML model are you building?
+      1. Classification (Logistic Regression, Random Forest, XGBoost)
+      2. Regression (Linear, Ridge, Lasso, Neural Net)
+      3. Tree/Ensemble (Random Forest, Gradient Boosting)
+      4. Other / Not Sure
+
+User: Classification - building a customer churn predictor
+
+CoCo: What is your target/label column name?
+
+User: CHURN_FLAG
+
+CoCo: Please provide your Snowflake source tables (3-part names):
+
+User: ANALYTICS.ML.CUSTOMERS, ANALYTICS.ML.USAGE_METRICS
+
+CoCo: Do you have a timestamp column for freshness checks?
+
+User: EVENT_DATE
+
+CoCo: Running comprehensive data quality analysis...
+      [Executes SQL checks]
+      
+      Here is your ML Data Quality Report:
+      
+      ## TLDR
+      | Attribute | Value |
+      |-----------|-------|
+      | **Verdict** | ⚠️ NEEDS ATTENTION |
+      | **Critical Issues** | 0 |
+      | **Warnings** | 2 |
+      
+      ### Key Findings
+      - Class imbalance: 85% non-churn vs 15% churn
+      - Column LAST_CONTACT has 35% null values
+      ...</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part1">
+<h1>Part 1: Introduction</h1>
+
+<h2>1.1 Purpose of This Guide</h2>
+
+<p>This guide provides step-by-step instructions for creating a Cortex Code skill that performs ML data quality validation. By the end of this guide, you will have:</p>
+
+<ul>
+    <li>A working <code>ml-data-quality-validation</code> skill</li>
+    <li>Understanding of CoCo skill architecture</li>
+    <li>Ability to customize and extend the skill</li>
+    <li>Knowledge to share the skill with your organization</li>
+</ul>
+
+<h2>1.2 Why Data Quality Matters for ML</h2>
+
+<p>Running data quality checks <strong>before</strong> feature engineering and model training helps you:</p>
+
+<table>
+    <tr>
+        <th>Benefit</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><strong>Early Issue Detection</strong></td>
+        <td>Catch problems before wasting compute on bad data</td>
+    </tr>
+    <tr>
+        <td><strong>Leakage Prevention</strong></td>
+        <td>Identify target leakage that would invalidate models</td>
+    </tr>
+    <tr>
+        <td><strong>Documentation</strong></td>
+        <td>Create DQ evidence for compliance and reproducibility</td>
+    </tr>
+    <tr>
+        <td><strong>Standardization</strong></td>
+        <td>Establish a consistent "DQ gate" for all ML projects</td>
+    </tr>
+</table>
+
+<h2>1.3 When to Use This Skill</h2>
+
+<p>Use this skill <strong>before</strong> any of these activities:</p>
+
+<ul>
+    <li>Creating feature sets or feature stores</li>
+    <li>Running feature engineering pipelines</li>
+    <li>Training ML models (Snowpark ML, external, etc.)</li>
+    <li>Deploying models to production</li>
+</ul>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part2">
+<h1>Part 2: Prerequisites</h1>
+
+<h2>2.1 Required Software</h2>
+
+<table>
+    <tr>
+        <th>Requirement</th>
+        <th>How to Verify</th>
+        <th>Installation</th>
+    </tr>
+    <tr>
+        <td>Cortex Code CLI</td>
+        <td><code>cortex --version</code></td>
+        <td>See Snowflake docs</td>
+    </tr>
+    <tr>
+        <td>Snowflake connection</td>
+        <td><code>cat ~/.snowflake/connections.toml</code></td>
+        <td>Configure connection</td>
+    </tr>
+    <tr>
+        <td>Text editor</td>
+        <td>Any (VS Code, vim, nano)</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Terminal access</td>
+        <td>bash, zsh, or PowerShell</td>
+        <td>-</td>
+    </tr>
+</table>
+
+<h2>2.2 Required Permissions</h2>
+
+<p>Your Snowflake user must have:</p>
+
+<ul>
+    <li><code>SELECT</code> permission on source tables</li>
+    <li><code>SELECT</code> on <code>INFORMATION_SCHEMA</code> views</li>
+    <li>Access to a warehouse</li>
+</ul>
+
+<h2>2.3 Verify Your Setup</h2>
+
+<pre class="bash"><code># Step 1: Check Cortex Code version
+cortex --version
+# Expected: cortex version X.X.X
+
+# Step 2: Start CoCo with your connection
+cortex -c your_connection_name
+
+# Step 3: Verify connection works
+/sql SELECT CURRENT_USER(), CURRENT_ROLE();
+
+# Step 4: Exit
+/exit</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part3">
+<h1>Part 3: Understanding Cortex Code Skills</h1>
+
+<h2>3.1 What is a Skill?</h2>
+
+<p>A <strong>skill</strong> is a markdown file (<code>SKILL.md</code>) that teaches Cortex Code how to handle specific tasks. When invoked, the skill's instructions guide the AI to perform specialized workflows.</p>
+
+<p><strong>Skills can:</strong></p>
+<ul>
+    <li>Define step-by-step workflows</li>
+    <li>Specify which tools to use</li>
+    <li>Provide domain-specific knowledge</li>
+    <li>Include examples and best practices</li>
+</ul>
+
+<h2>3.2 Skill Storage Locations</h2>
+
+<p>CoCo auto-discovers skills from these locations:</p>
+
+<table>
+    <tr>
+        <th>Location</th>
+        <th>Path</th>
+        <th>Scope</th>
+        <th>Priority</th>
+    </tr>
+    <tr>
+        <td>Project</td>
+        <td><code>.cortex/skills/</code></td>
+        <td>Current project</td>
+        <td>Highest</td>
+    </tr>
+    <tr>
+        <td>Global</td>
+        <td><code>~/.snowflake/cortex/skills/</code></td>
+        <td>All projects</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>User</td>
+        <td><code>~/.claude/skills/</code></td>
+        <td>Alternative</td>
+        <td>Medium</td>
+    </tr>
+    <tr>
+        <td>Bundled</td>
+        <td>Built into CoCo</td>
+        <td>System-wide</td>
+        <td>Lowest</td>
+    </tr>
+</table>
+
+<div class="tip">
+    <strong>Priority Rule:</strong> Project skills override personal skills if names match.
+</div>
+
+<h2>3.3 Skill File Structure</h2>
+
+<pre><code>skill-name/
+├── SKILL.md              # Main skill file (REQUIRED)
+├── config.yml            # Optional: Configurable thresholds
+├── templates/            # Optional: Report templates
+└── README.md             # Optional: Documentation</code></pre>
+
+<h2>3.4 SKILL.md Anatomy</h2>
+
+<pre><code>---
+name: skill-name                    # Unique identifier
+description: What the skill does    # Shown in /skill list
+allowed-tools: "*"                  # Tools the skill can use
+---
+
+# Skill Title
+
+**When to invoke:** Description of triggers
+
+## Your Role
+Instructions for the AI
+
+## Workflow Steps
+Step-by-step process
+
+## Output Format
+Expected output structure</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part4">
+<h1>Part 4: Architecture & Design</h1>
+
+<h2>4.1 Inputs Collected</h2>
+
+<table>
+    <tr>
+        <th>Input</th>
+        <th>Required</th>
+        <th>Description</th>
+        <th>Example</th>
+    </tr>
+    <tr>
+        <td>Model type</td>
+        <td>Yes</td>
+        <td>Type of ML model</td>
+        <td><code>classification</code></td>
+    </tr>
+    <tr>
+        <td>Target column</td>
+        <td>Recommended</td>
+        <td>Column being predicted</td>
+        <td><code>CHURN_FLAG</code></td>
+    </tr>
+    <tr>
+        <td>Source tables</td>
+        <td>Yes</td>
+        <td>3-part Snowflake names</td>
+        <td><code>DB.SCHEMA.TABLE</code></td>
+    </tr>
+    <tr>
+        <td>Time column</td>
+        <td>Optional</td>
+        <td>For freshness checks</td>
+        <td><code>EVENT_DATE</code></td>
+    </tr>
+    <tr>
+        <td>Join keys</td>
+        <td>Optional</td>
+        <td>For multi-table analysis</td>
+        <td><code>CUSTOMER_ID</code></td>
+    </tr>
+</table>
+
+<h2>4.2 Checks by Model Type</h2>
+
+<h3>Common Checks (All Models)</h3>
+<ul>
+    <li>Table existence and row counts</li>
+    <li>Column data types and nullable flags</li>
+    <li>Missingness and constant columns</li>
+    <li>Cardinality for categorical columns</li>
+    <li>Distribution stats (min/max/mean/std)</li>
+    <li>Time coverage and freshness</li>
+</ul>
+
+<h3>Classification-Specific</h3>
+<ul>
+    <li>Number of classes</li>
+    <li>Class imbalance ratios</li>
+    <li>Invalid labels (nulls, nonsensical values)</li>
+    <li>Leakage risk (high correlation with target)</li>
+</ul>
+
+<h3>Regression-Specific</h3>
+<ul>
+    <li>Target outliers and skew</li>
+    <li>Non-finite values (NaN, inf)</li>
+    <li>Feature-target correlations</li>
+</ul>
+
+<h3>Tree/Ensemble-Specific</h3>
+<ul>
+    <li>Very high cardinality categoricals</li>
+    <li>Wide tables (many columns)</li>
+    <li>Sparse indicator features</li>
+</ul>
+
+<h2>4.3 Verdict Logic</h2>
+
+<pre><code>IF any BLOCKED condition:
+    Verdict = "BLOCKED"
+ELSE IF any WARNING condition:
+    Verdict = "NEEDS ATTENTION"
+ELSE:
+    Verdict = "READY"</code></pre>
+
+<h3>Blocking Conditions</h3>
+
+<table>
+    <tr>
+        <th>Condition</th>
+        <th>Threshold</th>
+    </tr>
+    <tr>
+        <td>Table does not exist</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Table has 0 rows</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Target has only 1 class</td>
+        <td>Classification</td>
+    </tr>
+    <tr>
+        <td>Target > 70% null</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Class imbalance > 97%</td>
+        <td>Classification</td>
+    </tr>
+    <tr>
+        <td>Leakage correlation > 0.95</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Data > 30 days stale</td>
+        <td>If time column</td>
+    </tr>
+</table>
+
+<h3>Warning Conditions</h3>
+
+<table>
+    <tr>
+        <th>Condition</th>
+        <th>Threshold</th>
+    </tr>
+    <tr>
+        <td>Any column > 30% null</td>
+        <td>-</td>
+    </tr>
+    <tr>
+        <td>Class imbalance > 90%</td>
+        <td>Classification</td>
+    </tr>
+    <tr>
+        <td>Target skewness > 2</td>
+        <td>Regression</td>
+    </tr>
+    <tr>
+        <td>Cardinality > 1000</td>
+        <td>Categorical</td>
+    </tr>
+    <tr>
+        <td>Outliers > 5%</td>
+        <td>Numeric</td>
+    </tr>
+    <tr>
+        <td>Data > 7 days stale</td>
+        <td>If time column</td>
+    </tr>
+</table>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part5">
+<h1>Part 5: Step-by-Step Creation</h1>
+
+<h2><span class="step-number">1</span>Create the Skill Directory</h2>
+
+<p>Choose your preferred location:</p>
+
+<h3>Option A: Global (Personal)</h3>
+<pre class="bash"><code># Create directory
+mkdir -p ~/.snowflake/cortex/skills/ml-data-quality-validation
+
+# Navigate to it
+cd ~/.snowflake/cortex/skills/ml-data-quality-validation</code></pre>
+
+<h3>Option B: Project-Scoped</h3>
+<pre class="bash"><code># Navigate to your ML project
+cd /path/to/your/ml-project
+
+# Create skill directory
+mkdir -p .cortex/skills/ml-data-quality-validation
+
+# Navigate to it
+cd .cortex/skills/ml-data-quality-validation</code></pre>
+
+<h3>Verify</h3>
+<pre class="bash"><code>pwd
+# Should show the skill directory path</code></pre>
+
+<hr>
+
+<h2><span class="step-number">2</span>Create SKILL.md</h2>
+
+<pre class="bash"><code># Create empty file
+touch SKILL.md
+
+# Open in editor
+code SKILL.md    # VS Code
+# or
+vim SKILL.md     # vim
+# or
+nano SKILL.md    # nano</code></pre>
+
+<hr>
+
+<h2><span class="step-number">3</span>Add YAML Front Matter</h2>
+
+<p>Add this at the top of <code>SKILL.md</code>:</p>
+
+<pre><code>---
+name: ml-data-quality-validation
+description: >
+  Run deep, model-aware data quality checks on Snowflake tables 
+  before feature engineering and ML training. Produces a report 
+  with TLDR verdict (READY/NEEDS ATTENTION/BLOCKED), pros/cons, 
+  and recommended fixes.
+  Trigger phrases: "check ML data quality", "validate data before 
+  model training", "run pre-training data quality checks"
+allowed-tools: "*"
+---</code></pre>
+
+<p><strong>Field Explanations:</strong></p>
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Required</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>name</code></td>
+        <td>Yes</td>
+        <td>Unique skill identifier</td>
+    </tr>
+    <tr>
+        <td><code>description</code></td>
+        <td>Yes</td>
+        <td>Shown in <code>/skill list</code></td>
+    </tr>
+    <tr>
+        <td><code>allowed-tools</code></td>
+        <td>No</td>
+        <td><code>"*"</code> = all tools allowed</td>
+    </tr>
+</table>
+
+<hr>
+
+<h2><span class="step-number">4</span>Add Skill Header</h2>
+
+<pre><code># ML Data Quality Validation Skill
+
+**When to invoke:**  
+Use this skill **BEFORE** any of the following:
+- Creating feature sets or feature stores
+- Running feature engineering pipelines  
+- Training ML models (Snowpark ML, external, etc.)
+
+**Trigger phrases:**
+- "check ML data quality"
+- "validate data before model training"
+- "run pre-training data quality checks"
+- "ML DQ gate"
+- "$ml-data-quality-validation"</code></pre>
+
+<hr>
+
+<h2><span class="step-number">5</span>Define AI Role</h2>
+
+<pre><code>---
+
+## Your Role
+
+You are a **Senior ML Data Quality Engineer**. Your job is to:
+1. Analyze Snowflake tables that will feed feature engineering
+2. Perform model-aware data quality checks
+3. Produce a TLDR verdict plus detailed report with pros/cons</code></pre>
+
+<hr>
+
+<h2><span class="step-number">6</span>Add Input Collection</h2>
+
+<pre><code>---
+
+## Step 1: Collect User Inputs
+
+Use the `ask_user_question` tool to gather:
+
+### Question 1: Model Type
+```
+What type of ML model are you building?
+1. Classification (Logistic Regression, Random Forest, XGBoost)
+2. Regression (Linear, Ridge, Lasso, Neural Net)
+3. Tree/Ensemble (Random Forest, Gradient Boosting)
+4. Other / Not Sure
+```
+
+### Question 2: Target Variable
+```
+What is your TARGET/LABEL column name?
+(Leave blank if unsupervised)
+```
+
+### Question 3: Source Tables
+```
+Provide Snowflake source tables (3-part names):
+DATABASE.SCHEMA.TABLE_NAME
+
+Multiple tables: separate with commas
+```
+
+### Question 4: Time Column (Optional)
+```
+Timestamp column for freshness checks?
+(Type "none" if not applicable)
+```</code></pre>
+
+<hr>
+
+<h2><span class="step-number">7</span>Add Schema Discovery</h2>
+
+<pre><code>---
+
+## Step 2: Schema Discovery
+
+For each table, execute:
+
+### 2.1 Verify Table Exists
+```sql
+SELECT COUNT(*) AS TABLE_EXISTS
+FROM {DATABASE}.INFORMATION_SCHEMA.TABLES
+WHERE TABLE_CATALOG = '{DATABASE}'
+  AND TABLE_SCHEMA = '{SCHEMA}'
+  AND TABLE_NAME = '{TABLE}';
+```
+
+### 2.2 Get Row Count
+```sql
+SELECT COUNT(*) AS ROW_COUNT 
+FROM {DATABASE}.{SCHEMA}.{TABLE};
+```
+
+### 2.3 Get Column Metadata
+```sql
+SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE
+FROM {DATABASE}.INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_CATALOG = '{DATABASE}'
+  AND TABLE_SCHEMA = '{SCHEMA}'
+  AND TABLE_NAME = '{TABLE}'
+ORDER BY ORDINAL_POSITION;
+```</code></pre>
+
+<hr>
+
+<h2><span class="step-number">8</span>Add Profiling Checks</h2>
+
+<pre><code>---
+
+## Step 3: Data Profiling
+
+### 3.1 Numeric Column Profile
+```sql
+SELECT
+    '{COLUMN}' AS COLUMN_NAME,
+    COUNT(*) AS TOTAL_ROWS,
+    COUNT({COLUMN}) AS NON_NULL,
+    ROUND((COUNT(*) - COUNT({COLUMN})) * 100.0 / COUNT(*), 2) AS NULL_PCT,
+    COUNT(DISTINCT {COLUMN}) AS DISTINCT_COUNT,
+    MIN({COLUMN}) AS MIN_VAL,
+    MAX({COLUMN}) AS MAX_VAL,
+    AVG({COLUMN}) AS MEAN_VAL,
+    STDDEV({COLUMN}) AS STD_DEV
+FROM {DATABASE}.{SCHEMA}.{TABLE};
+```
+
+### 3.2 Flagging Rules
+
+| Condition | Verdict |
+|-----------|---------|
+| NULL_PCT > 70% | BLOCKED |
+| NULL_PCT > 30% | NEEDS ATTENTION |
+| DISTINCT_COUNT = 1 | NEEDS ATTENTION (constant) |</code></pre>
+
+<hr>
+
+<h2><span class="step-number">9</span>Add Model-Specific Checks</h2>
+
+<pre><code>---
+
+## Step 4: Model-Specific Checks
+
+### A. Classification
+```sql
+SELECT
+    {TARGET} AS CLASS,
+    COUNT(*) AS CNT,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER(), 2) AS PCT
+FROM {TABLE}
+GROUP BY {TARGET}
+ORDER BY CNT DESC;
+```
+
+**Flags:**
+- 1 class only → BLOCKED
+- Majority > 97% → BLOCKED
+- Majority > 90% → NEEDS ATTENTION
+
+### B. Regression
+Check target for outliers, skewness, non-finite values.
+
+### C. Tree/Ensemble
+Flag high cardinality (>1000) and wide tables (>500 columns).</code></pre>
+
+<hr>
+
+<h2><span class="step-number">10</span>Add Report Template</h2>
+
+<pre><code>---
+
+## Step 5: Generate Report
+
+Output this structure:
+
+```markdown
+# ML Data Quality Report
+
+**Generated:** {TIMESTAMP}
+**Model Type:** {MODEL_TYPE}
+**Target:** {TARGET_COLUMN}
+**Tables:** {SOURCE_TABLES}
+
+## TLDR
+
+| Attribute | Value |
+|-----------|-------|
+| **Verdict** | READY / NEEDS ATTENTION / BLOCKED |
+| **Critical Issues** | {count} |
+| **Warnings** | {count} |
+
+### Key Findings
+- Finding 1
+- Finding 2
+
+### Top 3 Actions
+1. Action 1
+2. Action 2
+3. Action 3
+
+## Table Summary
+
+### {TABLE_NAME}
+**Pros:** ✅ ...
+**Cons:** ⚠️ ...
+
+## Detailed Checks
+[All findings]
+
+## Recommended Fixes
+[Remediation steps]
+```</code></pre>
+
+<hr>
+
+<h2><span class="step-number">11</span>Save the File</h2>
+
+<ul>
+    <li><strong>VS Code:</strong> <code>Cmd+S</code> (Mac) / <code>Ctrl+S</code> (Windows)</li>
+    <li><strong>vim:</strong> <code>Esc</code> → <code>:wq</code> → <code>Enter</code></li>
+    <li><strong>nano:</strong> <code>Ctrl+O</code> → <code>Enter</code> → <code>Ctrl+X</code></li>
+</ul>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part6">
+<h1>Part 6: Testing Your Skill</h1>
+
+<h2>6.1 Verify Skill is Loaded</h2>
+
+<pre class="bash"><code># Start CoCo
+cortex
+
+# List skills
+/skill list</code></pre>
+
+<p>You should see:</p>
+<pre><code>ml-data-quality-validation - Run deep, model-aware data quality...</code></pre>
+
+<h2>6.2 Test Explicit Invocation</h2>
+
+<pre><code>> $ml-data-quality-validation</code></pre>
+
+<p>CoCo should start asking questions.</p>
+
+<h2>6.3 Test Natural Language</h2>
+
+<pre><code>> Check ML data quality for my classification model 
+  using table ANALYTICS.ML.CUSTOMERS with target CHURN_FLAG</code></pre>
+
+<h2>6.4 Full End-to-End Test</h2>
+
+<pre><code>> I'm building a logistic regression churn model.
+> Validate data quality for tables:
+> - TELCO_DB.RAW.CUSTOMERS
+> - TELCO_DB.RAW.USAGE
+> Target: CHURN_FLAG
+> Time column: EVENT_DATE
+> Give me TLDR and pros/cons.</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part7">
+<h1>Part 7: Sharing with Your Organization</h1>
+
+<h2>7.1 Option 1: Git Repository (Recommended)</h2>
+
+<h3>Create Skills Repo</h3>
+<pre class="bash"><code>mkdir my-org-coco-skills
+cd my-org-coco-skills
+git init
+
+# Copy skill
+cp -r ~/.snowflake/cortex/skills/ml-data-quality-validation .
+
+# Commit and push
+git add .
+git commit -m "Add ML data quality validation skill"
+git remote add origin https://github.com/your-org/coco-skills.git
+git push -u origin main</code></pre>
+
+<h3>Team Members Install</h3>
+<pre class="bash"><code>cortex skill add https://github.com/your-org/coco-skills.git</code></pre>
+
+<p>Or in CoCo:</p>
+<pre><code>/skill add https://github.com/your-org/coco-skills.git</code></pre>
+
+<h2>7.2 Option 2: Project-Scoped</h2>
+
+<p>Commit skill with your ML project:</p>
+<pre class="bash"><code>git add .cortex/skills/ml-data-quality-validation
+git commit -m "Add ML DQ validation skill"
+git push</code></pre>
+
+<p>Anyone cloning the repo gets the skill automatically.</p>
+
+<h2>7.3 Option 3: Sync to Global</h2>
+
+<pre><code>/skill sync ml-data-quality-validation</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="part8">
+<h1>Part 8: Troubleshooting</h1>
+
+<h2>8.1 Skill Not Appearing</h2>
+
+<p><strong>Check file location:</strong></p>
+<pre class="bash"><code>ls -la ~/.snowflake/cortex/skills/ml-data-quality-validation/</code></pre>
+
+<p><strong>Check file name:</strong> Must be exactly <code>SKILL.md</code> (case-sensitive)</p>
+
+<p><strong>Check front matter:</strong></p>
+<pre class="bash"><code>head -10 ~/.snowflake/cortex/skills/ml-data-quality-validation/SKILL.md</code></pre>
+
+<h2>8.2 Skill Not Triggering</h2>
+
+<p>Use explicit invocation:</p>
+<pre><code>$ml-data-quality-validation</code></pre>
+
+<p>Or mention skill name:</p>
+<pre><code>Use the ml-data-quality-validation skill to...</code></pre>
+
+<h2>8.3 SQL Queries Failing</h2>
+
+<p><strong>Verify 3-part names:</strong></p>
+<pre><code>DATABASE.SCHEMA.TABLE  ✓ Correct
+SCHEMA.TABLE           ✗ Wrong
+TABLE                  ✗ Wrong</code></pre>
+
+<p><strong>Verify permissions:</strong></p>
+<pre class="sql"><code>SHOW GRANTS ON TABLE DATABASE.SCHEMA.TABLE;</code></pre>
+
+<h2>8.4 Report Not Saving</h2>
+
+<p>Ensure front matter has:</p>
+<pre><code>allowed-tools: "*"</code></pre>
+
+<p>Or explicitly:</p>
+<pre><code>allowed-tools:
+  - snowflake_sql_execute
+  - ask_user_question
+  - write</code></pre>
+
+</section>
+
+<div class="page-break"></div>
+
+<section id="appendix">
+<h1>Appendix A: Quick Reference</h1>
+
+<h2>Commands</h2>
+
+<table>
+    <tr>
+        <th>Command</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td><code>cortex skill list</code></td>
+        <td>List all skills</td>
+    </tr>
+    <tr>
+        <td><code>cortex skill add &lt;path&gt;</code></td>
+        <td>Add skill from path</td>
+    </tr>
+    <tr>
+        <td><code>/skill list</code></td>
+        <td>List skills (in CoCo)</td>
+    </tr>
+    <tr>
+        <td><code>/skill sync &lt;name&gt;</code></td>
+        <td>Sync to global</td>
+    </tr>
+    <tr>
+        <td><code>$skill-name</code></td>
+        <td>Invoke skill</td>
+    </tr>
+</table>
+
+<h2>File Locations</h2>
+
+<table>
+    <tr>
+        <th>Type</th>
+        <th>Path</th>
+    </tr>
+    <tr>
+        <td>Global skills</td>
+        <td><code>~/.snowflake/cortex/skills/</code></td>
+    </tr>
+    <tr>
+        <td>Project skills</td>
+        <td><code>.cortex/skills/</code></td>
+    </tr>
+    <tr>
+        <td>Config</td>
+        <td><code>~/.snowflake/cortex/settings.json</code></td>
+    </tr>
+</table>
+
+<h2>Trigger Phrases</h2>
+
+<ul>
+    <li>"check ML data quality"</li>
+    <li>"validate data before model training"</li>
+    <li>"run pre-training data quality checks"</li>
+    <li>"ML DQ gate"</li>
+    <li>"$ml-data-quality-validation"</li>
+</ul>
+
+<h1>Appendix B: Configuration Template</h1>
+
+<p>Create <code>~/.snowflake/cortex/ml-data-quality-config.yml</code>:</p>
+
+<pre><code># Null rate thresholds
+null_rate_warning: 0.30
+null_rate_block: 0.70
+
+# Class imbalance (majority class share)
+class_imbalance_warning: 0.90
+class_imbalance_block: 0.97
+
+# Outlier thresholds
+outlier_percent_warning: 0.05
+outlier_zscore_warning: 4.0
+
+# Cardinality thresholds
+cardinality_warning: 1000
+cardinality_block: 10000
+
+# Freshness (days since last record)
+freshness_days_warning: 7
+freshness_days_block: 30
+
+# Leakage correlation
+leakage_correlation_warning: 0.85
+leakage_correlation_block: 0.95</code></pre>
+
+<div class="page-break"></div>
+
+<h1>Appendix C: Sample Report Output</h1>
+
+<pre><code># ML Data Quality Report
+
+**Generated:** 2024-01-15 10:30:00 UTC
+**Model Type:** classification
+**Target Column:** CHURN_FLAG
+**Tables:** TELCO_DB.RAW.CUSTOMERS, TELCO_DB.RAW.USAGE
+
+---
+
+## TLDR (Executive Summary)
+
+| Attribute | Value |
+|-----------|-------|
+| **Verdict** | ⚠️ NEEDS ATTENTION |
+| **Critical Issues** | 0 |
+| **Warnings** | 3 |
+
+### Key Findings
+- Class imbalance: 85% non-churn vs 15% churn
+- Column LAST_CONTACT has 42% null values
+- Data is 3 days fresh (acceptable)
+- No obvious target leakage detected
+
+### Top 3 Recommended Actions
+1. Apply SMOTE or class weights to handle imbalance
+2. Impute or drop LAST_CONTACT column
+3. Consider feature engineering on USAGE patterns
+
+---
+
+## 1. Overall Assessment
+
+The data is **suitable for a PoC model** but requires 
+preprocessing before production. Main concerns are class 
+imbalance and one high-null column.
+
+**Readiness:** Needs preprocessing
+**Caveats:** Address imbalance before production deployment
+
+---
+
+## 2. Table-Level Summary
+
+### TELCO_DB.RAW.CUSTOMERS
+| Metric | Value |
+|--------|-------|
+| Rows | 50,000 |
+| Columns | 15 |
+| High-Null Columns | 1 |
+
+**Pros:**
+- ✅ Good data volume (50K rows)
+- ✅ All expected columns present
+- ✅ No duplicate customer IDs
+
+**Cons:**
+- ⚠️ LAST_CONTACT: 42% null
+- ⚠️ Class imbalance in CHURN_FLAG
+
+### TELCO_DB.RAW.USAGE
+**Pros:**
+- ✅ Complete usage records
+- ✅ Good date coverage (2 years)
+
+**Cons:**
+- ⚠️ Some extreme outliers in CALL_DURATION
+
+---
+
+## 3. Recommended Fixes
+
+| Priority | Action | Columns | Rationale |
+|----------|--------|---------|-----------|
+| 1 | Handle imbalance | CHURN_FLAG | 85/15 split |
+| 2 | Impute nulls | LAST_CONTACT | 42% missing |
+| 3 | Cap outliers | CALL_DURATION | Extreme values |</code></pre>
+
+</section>
+
+<div class="footer">
+    <p><strong>Cortex Code Skill: ML Data Quality Validation & Reporting</strong></p>
+    <p>For questions or feedback, use <code>/feedback</code> in Cortex Code.</p>
+    <p>© Snowflake</p>
+</div>
+
+</body>
+</html>

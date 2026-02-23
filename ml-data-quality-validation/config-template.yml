@@ -1,0 +1,104 @@
+# ML Data Quality Validation - Configuration File
+# ================================================
+# Place this file at: ~/.snowflake/cortex/ml-data-quality-config.yml
+# Or at project level: .cortex/ml-data-quality-config.yml
+#
+# The skill will read these thresholds when determining verdicts.
+# Project-level config overrides global config.
+
+# =============================================================================
+# MISSINGNESS THRESHOLDS
+# =============================================================================
+# Percentage of null values that trigger warnings or blocking
+
+null_rate_warning: 0.30      # Columns with >30% nulls get NEEDS ATTENTION
+null_rate_block: 0.70        # Columns with >70% nulls get BLOCKED
+
+# =============================================================================
+# CLASS IMBALANCE THRESHOLDS (Classification Models)
+# =============================================================================
+# Majority class share that triggers warnings or blocking
+
+class_imbalance_warning: 0.90    # Majority class >90% gets NEEDS ATTENTION
+class_imbalance_block: 0.97      # Majority class >97% gets BLOCKED
+
+# =============================================================================
+# OUTLIER THRESHOLDS
+# =============================================================================
+# Outlier detection sensitivity
+
+outlier_percent_warning: 0.05    # >5% outliers triggers warning
+outlier_zscore_warning: 4.0      # Z-score threshold for outlier detection
+outlier_zscore_block: 6.0        # Extreme outliers threshold
+
+# =============================================================================
+# CARDINALITY THRESHOLDS
+# =============================================================================
+# For categorical columns
+
+cardinality_warning: 1000        # >1000 distinct values triggers warning
+cardinality_block: 10000         # >10000 distinct values gets flagged
+
+# Low cardinality (constant/near-constant columns)
+cardinality_min_warning: 2       # <=2 distinct values gets noted
+cardinality_min_block: 1         # Only 1 distinct value gets NEEDS ATTENTION
+
+# =============================================================================
+# FRESHNESS THRESHOLDS
+# =============================================================================
+# Days since last record (requires time column)
+
+freshness_days_warning: 7        # >7 days old gets NEEDS ATTENTION
+freshness_days_block: 30         # >30 days old gets BLOCKED
+
+# =============================================================================
+# DATA VOLUME THRESHOLDS
+# =============================================================================
+# Row count thresholds
+
+min_rows_warning: 1000           # <1000 rows gets noted
+min_rows_block: 100              # <100 rows gets NEEDS ATTENTION
+min_rows_critical: 0             # 0 rows gets BLOCKED
+
+# =============================================================================
+# LEAKAGE DETECTION THRESHOLDS
+# =============================================================================
+# Correlation with target that suggests potential leakage
+
+leakage_correlation_warning: 0.85    # Correlation >0.85 triggers investigation
+leakage_correlation_block: 0.95      # Correlation >0.95 almost certain leakage
+
+# =============================================================================
+# REGRESSION SPECIFIC THRESHOLDS
+# =============================================================================
+
+target_skewness_warning: 2.0     # Skewness >2 suggests transformation needed
+target_skewness_block: 5.0       # Extreme skewness
+
+# =============================================================================
+# TREE/ENSEMBLE SPECIFIC THRESHOLDS
+# =============================================================================
+
+max_columns_warning: 500         # >500 columns gets noted
+max_columns_block: 2000          # >2000 columns gets flagged
+
+sparse_feature_warning: 0.95     # >95% sparse (null + zero) gets noted
+
+# =============================================================================
+# DRIFT DETECTION THRESHOLDS
+# =============================================================================
+# Comparing recent vs historical data (requires time column)
+
+drift_mean_change_warning: 0.20      # >20% mean change triggers warning
+drift_stddev_change_warning: 0.50    # >50% std change triggers warning
+
+drift_lookback_days: 180             # Historical period for comparison
+drift_recent_days: 30                # Recent period for comparison
+
+# =============================================================================
+# SAMPLING CONFIGURATION
+# =============================================================================
+# For very large tables, use sampling to speed up profiling
+
+sampling_threshold_rows: 10000000    # Tables >10M rows use sampling
+sampling_rate: 0.01                  # 1% sample rate
